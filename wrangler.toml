@@ -1,0 +1,22 @@
+name = "secret-santa"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+# La app (la página que ven tus amigos) se sirve desde la carpeta public/.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# Una sola base de datos. Las tablas y los datos iniciales se crean solos al abrir la app por primera vez.
+[[d1_databases]]
+binding = "DB"
+database_name = "secret-santa"
+database_id = "PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS"   # D1 > secret-santa > Database ID
+
+# Registros para encontrar errores desde el panel de Cloudflare.
+[observability]
+enabled = true
+
+# Secretos (NO van aquí; se cargan en Cloudflare, Settings > Variables and secrets, tipo Secret):
+#   ADMIN_TOKEN   clave larga del organizador (editar listas de otros, cambiar contraseñas, respaldo)
+#   HASH_SALT     texto aleatorio largo para proteger los registros de intentos fallidos

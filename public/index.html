@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NPI - Secret Santa</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🎁%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --f-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --f-sans: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --bg: #fbf4ec; --card: #ffffff; --card2: #f6ebdd; --ink: #2a1f1a; --muted: #75645a; --line: #e6d6c5;
+    --accent: #c4585b; --accent-ink: #ffffff; --rose: #b0474b;
+    --chip-bg: #f3e3d1; --chip-ink: #55392a;
+    --green: #1f7a57; --amber: #d29a1e; --red: #cf4b4b; --on-state: #ffffff; --on-amber: #3b2a00;
+    --glow: rgba(196, 88, 91, .10);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1f1a17; --card: #2a2420; --card2: #332b26; --ink: #f4eadf; --muted: #b9a99b; --line: #3e342d;
+      --accent: #dd9697; --accent-ink: #2b1b1b; --rose: #e39b9b;
+      --chip-bg: #3d3029; --chip-ink: #f1e4d6;
+      --green: #6fcf9f; --amber: #e0b04a; --red: #e07474; --on-state: #14261d; --on-amber: #3b2a00;
+      --glow: rgba(255, 255, 255, .06); color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1f1a17; --card: #2a2420; --card2: #332b26; --ink: #f4eadf; --muted: #b9a99b; --line: #3e342d;
+    --accent: #dd9697; --accent-ink: #2b1b1b; --rose: #e39b9b;
+    --chip-bg: #3d3029; --chip-ink: #f1e4d6;
+    --green: #6fcf9f; --amber: #e0b04a; --red: #e07474; --on-state: #14261d; --on-amber: #3b2a00;
+    --glow: rgba(255, 255, 255, .06); color-scheme: dark;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); scroll-behavior: smooth; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-sans); line-height: 1.5; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 22px 56px; }
+  button, input, select { font: inherit; color: inherit; }
+  [hidden] { display: none !important; }
+  .ico { display: inline-flex; vertical-align: middle; }
+  .ico svg { width: 1em; height: 1em; }
+  :is(button, input, select, a):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* encabezado */
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 42px; height: 42px; border-radius: 13px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-size: 22px; transform: rotate(-4deg); }
+  .brand b { font: 600 1.5rem var(--f-serif); letter-spacing: -.01em; }
+  .brand b i { color: var(--rose); font-style: normal; }
+  .brand span.t { font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; margin-left: 4px; }
+  .top-r { display: flex; align-items: center; gap: 14px; }
+  .edition { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .tbtn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); cursor: pointer; display: grid; place-items: center; font-size: 18px; }
+
+  .banner { margin: 16px 0 0; padding: 12px 16px; border-radius: 12px; background: var(--card2); border: 1px solid var(--line); font-size: .93rem; }
+
+  /* portada */
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: center; padding: 42px 0 30px; }
+  .eyebrow { display: flex; align-items: center; gap: 8px; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--rose); font-weight: 600; margin: 0 0 14px; }
+  h1 { margin: 0; font: 500 clamp(2.3rem, 6vw, 3.7rem)/1.06 var(--f-serif); letter-spacing: -.02em; }
+  h1 em { display: block; color: var(--rose); font-style: italic; }
+  .lead { max-width: 30em; color: var(--muted); font-size: 1.04rem; margin: 18px 0 24px; }
+  .lead b { color: var(--ink); font-weight: 500; }
+  .cta { display: flex; align-items: center; flex-wrap: wrap; gap: 22px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer; text-decoration: none; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn.full { width: 100%; justify-content: space-between; }
+  .link { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; padding: 8px 0; font-weight: 600; font-size: .92rem; cursor: pointer; text-decoration: none; color: var(--ink); }
+  .note { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; font-size: .78rem; color: var(--muted); }
+  .artwrap { position: relative; }
+  .art { display: block; width: 100%; height: auto; max-width: 460px; margin: 0 auto; }
+  .handmade { position: absolute; right: 2%; top: 4%; transform: rotate(-7deg); font: italic 500 1rem var(--f-serif); color: var(--muted); }
+
+  /* fechas */
+  .dates { display: flex; align-items: center; gap: 22px; padding: 18px 22px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+  .dates .l { display: flex; align-items: center; gap: 14px; padding-right: 22px; border-right: 1px solid var(--line); flex: none; color: var(--rose); font-size: 1.4rem; }
+  .dates .l b { display: block; color: var(--ink); font-size: .95rem; }
+  .dates .l small { display: block; color: var(--muted); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; margin-top: 2px; }
+  .wks { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; flex: 1; }
+  .wkb { border: 1px solid var(--line); border-radius: 10px; padding: 10px 6px; text-align: center; background: var(--bg); }
+  .wkb small { display: block; font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .wkb b { font-weight: 600; font-size: .86rem; }
+
+  /* cuerpo */
+  .main { display: grid; grid-template-columns: 350px 1fr; gap: 26px; align-items: start; margin-top: 28px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
+  .panel .eyebrow { justify-content: space-between; margin-bottom: 10px; }
+  h2 { margin: 0 0 8px; font: 500 1.7rem/1.15 var(--f-serif); letter-spacing: -.01em; }
+  .sub { margin: 0 0 18px; color: var(--muted); font-size: .92rem; }
+  label.f { display: flex; align-items: center; gap: 8px; margin: 14px 0 6px; font-size: .82rem; font-weight: 600; }
+  input[type=text], input[type=password], input[type=search], select {
+    width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: .95rem; }
+  select { appearance: auto; }
+  .sep { height: 1px; background: var(--line); margin: 20px 0 16px; }
+  .small-eyebrow { font-size: .66rem; letter-spacing: .18em; text-transform: uppercase; color: var(--rose); font-weight: 600; margin: 0 0 12px; }
+  .crow { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .crow .n { font-size: .72rem; font-weight: 600; color: var(--rose); width: 18px; flex: none; }
+  .hint { font-size: .8rem; color: var(--muted); margin: 6px 0 16px; }
+  .msg { margin-top: 12px; font-size: .9rem; min-height: 1.2em; }
+  .msg.ok { color: var(--green); } .msg.err { color: var(--red); }
+  .count { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: var(--card2); font-size: .8rem; color: var(--muted); }
+  .count b { color: var(--green); font-weight: 600; }
+  .headrow { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 14px 0; margin: 14px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: .78rem; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .lg { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--line); display: inline-grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .lg.ok { background: var(--green); border-color: var(--green); color: var(--on-state); }
+  .lg.alt { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+  .lg.no { background: var(--red); border-color: var(--red); color: #fff; }
+  .tools { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin: 18px 0 10px; }
+  .tabs { display: flex; gap: 6px; }
+  .tab { border: 0; background: none; padding: 9px 16px; border-radius: 8px; font-size: .86rem; color: var(--muted); cursor: pointer; font-weight: 500; }
+  .tab[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+  .search { position: relative; }
+  .search .ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  .search input { padding-left: 36px; min-width: 210px; }
+  .live { display: flex; align-items: center; justify-content: space-between; font-size: .72rem; color: var(--muted); margin: 6px 0 14px; }
+  .live i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 7px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 16px; }
+  .p { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  .p.mine { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .ph { display: flex; align-items: center; gap: 12px; }
+  .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font: 500 1.2rem var(--f-serif); flex: none; }
+  .av0 { background: #efe3d3; color: #7a5a2f; } .av1 { background: #e3ecde; color: #3f6a4a; }
+  .av2 { background: #f1dfdc; color: #8a4a4a; } .av3 { background: #e5e2ee; color: #5a4f80; }
+  .who { flex: 1; min-width: 0; }
+  .who strong { display: block; font-weight: 600; }
+  .who .st { display: block; font-size: .72rem; color: var(--muted); }
+  .who .st.on { color: var(--green); }
+  .iconbtn { width: 38px; height: 38px; border: 1px solid var(--line); background: none; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: var(--rose); font-size: 16px; }
+  .wk { display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+  .wkc { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .wkl { font-size: .58rem; letter-spacing: .12em; color: var(--muted); font-weight: 600; }
+  .dot { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--line); background: none; padding: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; font-weight: 700; }
+  .dot.ok { background: var(--green); border-color: var(--green); color: var(--on-state); }
+  .dot.alt { background: var(--amber); border-color: var(--amber); color: var(--on-amber); }
+  .dot.no { background: var(--red); border-color: var(--red); color: #fff; }
+  button.dot { cursor: pointer; border-color: var(--accent); }
+  button.dot:not(.ok):not(.alt):not(.no) { color: transparent; }
+  .chips { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li { background: var(--chip-bg); color: var(--chip-ink); border-radius: 8px; padding: 6px 12px; font-size: .78rem; line-height: 1.3; }
+  .pendbtn { align-self: flex-start; border: 0; background: none; padding: 6px 0; color: var(--muted); font-size: .85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .ownerbtn { align-self: flex-start; border: 1px solid var(--line); background: none; border-radius: 8px; padding: 6px 12px; font-size: .78rem; cursor: pointer; color: var(--muted); }
+  .empty { grid-column: 1 / -1; padding: 28px 0; text-align: center; color: var(--muted); }
+
+
+  /* pantalla de persona (compacta) */
+  .back { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 14px; font-weight: 600; font-size: .85rem; cursor: pointer; margin: 14px 0 10px; }
+  .pcard { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+  .phead { display: flex; align-items: center; gap: 12px; }
+  .av.big { width: 46px; height: 46px; font-size: 1.3rem; }
+  .phead .who { flex: 1; min-width: 0; }
+  .phead h2 { margin: 0; font-size: 1.35rem; line-height: 1.1; }
+  .phead .btn { min-height: 38px; padding: 0 14px; font-size: .82rem; }
+  .pcard .wk { margin-top: 10px; padding-bottom: 0; border-bottom: 0; max-width: 340px; }
+  .pcard .dot { width: 30px; height: 30px; font-size: 12px; }
+  .pcard .wkc { gap: 3px; }
+  .gate { margin-top: 12px; padding: 12px; border: 1px dashed var(--accent); border-radius: 12px; background: var(--card2); }
+  .gate .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .gate input { flex: 1; min-width: 160px; }
+  #pMsg { margin-top: 8px; min-height: 0; }
+  .slots { display: grid; gap: 6px; margin-top: 10px; }
+  .slots.view { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(5, auto); grid-auto-flow: column; }
+  .slots.edit { grid-template-columns: 1fr; }
+  .slot { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 6px 8px; display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .slot.empty { opacity: .6; }
+  .slotimg { position: relative; flex: none; width: 44px; height: 44px; border-radius: 8px; background: var(--card2); border: 1px solid var(--line); overflow: hidden; display: grid; place-items: center; color: var(--muted); padding: 0; font-size: 18px; }
+  .slotimg.load { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .45; } }
+  button.slotimg { cursor: zoom-in; border-color: var(--accent); }
+  .slotimg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .slotbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .slotbody .n { font-size: .6rem; letter-spacing: .14em; color: var(--rose); font-weight: 600; }
+  .slotbody .txt { margin: 0; font-size: .8rem; line-height: 1.25; font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .slotbody .txt.none { color: var(--muted); font-weight: 400; }
+  .slotbody input { min-height: 38px; padding: 6px 10px; font-size: .88rem; }
+  .pbtns { display: flex; gap: 4px; flex: none; }
+  .ib { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); display: grid; place-items: center; cursor: pointer; font-size: 17px; padding: 0; }
+  .ib.danger { color: var(--red); }
+  .editbar { position: sticky; bottom: 0; z-index: 5; margin-top: 12px; padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--bg); border-top: 1px solid var(--line); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .editbar .btn { min-height: 42px; }
+  @media (min-width: 760px) { .slots.edit { grid-template-columns: 1fr 1fr; } .slotimg { width: 52px; height: 52px; } .slotbody .txt { font-size: .86rem; } }
+  .btn.ghost { background: var(--card2); color: var(--ink); }
+  .cam { display: inline-flex; vertical-align: -2px; margin-left: 6px; color: var(--rose); font-size: 13px; }
+  .chips li { display: inline-flex; align-items: center; }
+  .viewbtn { align-self: flex-start; border: 0; background: none; padding: 4px 0; color: var(--rose); font-weight: 600; font-size: .82rem; cursor: pointer; }
+  .ph .open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; border: 0; background: none; padding: 0; text-align: left; cursor: pointer; }
+  .p { cursor: pointer; }
+  .lightbox { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, .86); display: grid; place-items: center; padding: 20px; }
+  .lightbox img { max-width: 94vw; max-height: 82vh; border-radius: 12px; }
+  .lightbox button { position: absolute; top: calc(14px + env(safe-area-inset-top, 0px)); right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #fff; color: #111; font-size: 22px; cursor: pointer; }
+
+  .phead { flex-wrap: wrap; }
+  .foot { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+  .foot summary { cursor: pointer; }
+  .foot .row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .foot input { max-width: 260px; }
+
+  .mtab { border: 0; background: none; padding: 9px 16px; border-radius: 8px; font-size: .86rem; color: var(--muted); cursor: pointer; font-weight: 500; }
+  .mtab[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+  .panel .tabs { flex-wrap: wrap; margin: 6px 0 4px; }
+  textarea { width: 100%; min-height: 150px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); padding: 12px 14px; font: inherit; font-size: .92rem; line-height: 1.45; resize: vertical; }
+  .msgrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+
+  input[type=number], input[type=date] { width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: .95rem; }
+  .wks { grid-template-columns: repeat(var(--nw, 6), 1fr); }
+  .archbar { margin: 14px 0 0; padding: 12px 16px; border-radius: 12px; background: var(--amber); color: var(--on-amber); display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; font-weight: 600; }
+  .archbar .btn { min-height: 38px; background: #fff; color: #3b2a00; }
+  .admgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
+  .admgrid label.f { margin: 0 0 4px; }
+  .arow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .arow input { flex: 1; min-width: 130px; min-height: 40px; padding: 6px 10px; }
+  .arow .btn { min-height: 38px; padding: 0 12px; font-size: .8rem; }
+  .pcard + .pcard { margin-top: 14px; }
+  .pcard h2 { font-size: 1.5rem; }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 28px; }
+    .artwrap { order: -1; max-width: 320px; margin: 0 auto; }
+    .main { grid-template-columns: 1fr; }
+    .dates { flex-direction: column; align-items: stretch; gap: 14px; }
+    .dates .l { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+    .wks { grid-template-columns: repeat(3, 1fr); }
+    .edition { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top" id="top">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🎁</div>
+      <div><b>NPI<i>.</i></b><span class="t">Secret Santa</span></div>
+    </div>
+    <div class="top-r">
+      <span class="edition" id="edition">Edición 2026</span>
+      <button class="tbtn" id="theme" type="button" aria-label="Cambiar entre tema claro y oscuro">☀</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" hidden></div>
+  <div id="archBar" class="archbar" hidden><span id="archTxt"></span><button class="btn" id="archExit" type="button">Volver a la edición actual</button></div>
+
+  <div id="mainView">
+  <section class="hero">
+    <div>
+      <p class="eyebrow"><span aria-hidden="true">✦</span> Un intercambio entre amigos</p>
+      <h1>NPI - Secret Santa <em>Un viernes más dulce.</em></h1>
+      <p class="lead" id="lead"></p>
+      <div class="cta">
+        <a class="btn" href="#registro">Registrar mis dulces <span aria-hidden="true">↗</span></a>
+        <a class="link" href="#antojero">Ver los de mis amigos <span aria-hidden="true">↓</span></a>
+      </div>
+      <p class="note"><span aria-hidden="true">🔒</span> Ver es libre. Solo necesitas contraseña para editar.</p>
+    </div>
+    <div class="artwrap">
+      <span class="handmade">hecho de pequeños detalles</span>
+      <svg class="art" viewBox="0 0 440 350" role="img" aria-label="Un regalo con moño, dulces y una etiqueta que dice Para ti">
+        <defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffffff" stop-opacity=".10"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="215" cy="185" r="150" fill="url(#glow)"/>
+        <path d="M90 70l5 12 12 5-12 5-5 12-5-12-12-5 12-5z" fill="#c98f55"/>
+        <path d="M372 150l4 9 9 4-9 4-4 9-4-9-9-4 9-4z" fill="#c98f55"/>
+        <path d="M118 318l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#c98f55"/>
+        <g transform="rotate(-4 215 215)">
+          <rect x="132" y="168" width="172" height="124" rx="5" fill="#b34550"/>
+          <rect x="120" y="140" width="196" height="38" rx="5" fill="#c4535d"/>
+          <rect x="199" y="140" width="36" height="152" fill="#e6c898"/>
+          <rect x="120" y="152" width="196" height="12" fill="#e6c898" opacity=".9"/>
+          <ellipse cx="190" cy="118" rx="30" ry="21" fill="none" stroke="#e6c898" stroke-width="12" transform="rotate(-28 190 118)"/>
+          <ellipse cx="246" cy="118" rx="30" ry="21" fill="none" stroke="#e6c898" stroke-width="12" transform="rotate(28 246 118)"/>
+          <rect x="206" y="108" width="24" height="24" rx="5" fill="#e6c898"/>
+        </g>
+        <g transform="rotate(8 330 200)">
+          <path d="M292 188q-28-22-48-8" fill="none" stroke="#c9a26a" stroke-width="1.5"/>
+          <rect x="288" y="176" width="92" height="48" rx="3" fill="#f3e6cf"/>
+          <text x="334" y="206" text-anchor="middle" font-family="Playfair Display, Georgia, serif" font-style="italic" font-size="16" fill="#6b4b3a">Para ti ♡</text>
+        </g>
+        <g transform="rotate(-20 112 250)">
+          <polygon points="72,250 50,234 50,266" fill="#d4b185"/><polygon points="152,250 174,234 174,266" fill="#d4b185"/>
+          <rect x="72" y="234" width="80" height="32" rx="10" fill="#e2c79d"/>
+          <path d="M86 234l-8 32M104 234l-8 32M122 234l-8 32M140 234l-8 32" stroke="#c4a06c" stroke-width="5"/>
+        </g>
+        <g transform="translate(372 108)">
+          <circle r="21" fill="#f6efe6"/>
+          <path d="M0 0L0-21A21 21 0 0 1 18.2-10.5Z M0 0L18.2 10.5A21 21 0 0 1 0 21Z M0 0L-18.2 10.5A21 21 0 0 1-18.2-10.5Z" fill="#b94550"/>
+        </g>
+        <g transform="translate(70 300)">
+          <circle r="25" fill="#f6efe6"/>
+          <path d="M0 0L0-25A25 25 0 0 1 21.6-12.5Z M0 0L21.6 12.5A25 25 0 0 1 0 25Z M0 0L-21.6 12.5A25 25 0 0 1-21.6-12.5Z" fill="#b94550"/>
+        </g>
+        <circle cx="352" cy="272" r="54" fill="none" stroke="#c98f55" stroke-width="1.2" stroke-dasharray="4 5"/>
+        <text x="352" y="268" text-anchor="middle" font-size="10" letter-spacing="2" fill="#e39b9b" font-family="DM Sans, system-ui, sans-serif"><tspan id="artCount">14</tspan> AMIGOS</text>
+        <text x="352" y="288" text-anchor="middle" font-size="15" font-style="italic" fill="#e39b9b" font-family="Playfair Display, Georgia, serif">muchos antojos</text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="dates" aria-label="Fechas de regalo">
+    <div class="l"><span aria-hidden="true">🎁</span><div><b>Los viernes se regala 🎁</b><small id="dateRange">30 oct — 4 dic · 2026</small></div></div>
+    <div class="wks" id="dates"></div>
+  </section>
+
+  <div class="main">
+    <section class="panel" id="registro">
+      <p class="eyebrow"><span>Mi lista de antojos</span><span aria-hidden="true">🍬</span></p>
+      <h2>Registrar mis dulces 🍬</h2>
+      <p class="sub">Elige de 5 a 10 dulces y, si quieres, súbeles una foto. ¡Se vale tener favoritos!</p>
+      <div id="formBox">
+        <label class="f" for="who">¿Quién eres?</label>
+        <select id="who"></select>
+        <label class="f" for="pass">Tu contraseña 🔒</label>
+        <input type="password" id="pass" autocomplete="off" inputmode="numeric" placeholder="Solo tú y tus antojos">
+        <p class="hint">Con tu contraseña editas tus dulces y marcas tus semanas.</p>
+        <button class="btn full" id="enter" type="button"><span>Entrar a mi lista</span><span aria-hidden="true">↗</span></button>
+        <div class="msg" id="msg" role="status"></div>
+      </div>
+    </section>
+
+    <section id="antojero">
+      <div class="headrow">
+        <div>
+          <p class="eyebrow">El antojero del grupo</p>
+          <h2>Dulces de cada quien 🍭</h2>
+          <p class="sub" style="margin-bottom:0">Un vistazo a sus favoritos y a cómo va cada viernes.</p>
+        </div>
+        <span class="count"><span aria-hidden="true">👥</span><span><b id="done">0</b> de <span id="total">0</span> registrados</span></span>
+      </div>
+      <div class="legend">
+        <span><i class="lg"></i>Aún sin marcar</span>
+        <span><i class="lg ok">✓</i>El que pedí</span>
+        <span><i class="lg alt">!</i>Otro dulce</span>
+        <span><i class="lg no">✕</i>No recibí</span>
+      </div>
+      <div class="tools">
+        <div class="tabs" role="group" aria-label="Filtrar">
+          <button class="tab" type="button" data-tab="all" aria-pressed="true">Todos</button>
+          <button class="tab" type="button" data-tab="done" aria-pressed="false">Registrados</button>
+          <button class="tab" type="button" data-tab="pending" aria-pressed="false">Pendientes</button>
+        </div>
+        <div class="search"><span class="ico" aria-hidden="true">⌕</span><input type="search" id="q" placeholder="Buscar amigo o dulce…" aria-label="Buscar amigo o dulce"></div>
+      </div>
+      <div class="live"><span><i></i>Visible para todos · Se actualiza automáticamente</span></div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </div>
+  <section class="panel" id="msgPanel" hidden style="margin-top:26px">
+    <p class="eyebrow"><span>Solo para ti · organizador</span><span aria-hidden="true">💬</span></p>
+    <h2>Mensajes para el grupo</h2>
+    <p class="sub">Arma el texto, revísalo y envíalo tú: la app no manda nada por sí sola.</p>
+    <div class="tabs" id="msgTabs" role="group" aria-label="Tipo de mensaje">
+      <button class="mtab" type="button" data-kind="status" aria-pressed="true">Estatus</button>
+      <button class="mtab" type="button" data-kind="pending" aria-pressed="false">Recordar pendientes</button>
+      <button class="mtab" type="button" data-kind="friday" aria-pressed="false">Viernes</button>
+    </div>
+    <label class="f" for="msgText">Mensaje (puedes editarlo)</label>
+    <textarea id="msgText" rows="8"></textarea>
+    <div class="msgrow">
+      <a class="btn" id="msgWa" href="#" target="_blank" rel="noopener">Compartir por WhatsApp</a>
+      <button class="btn ghost" id="msgCopy" type="button">Copiar texto</button>
+      <a class="btn ghost" id="msgMail" href="#">Abrir en correo</a>
+    </div>
+    <p class="hint" id="msgHint" role="status"></p>
+    <p class="hint" id="msgNote"></p>
+  </section>
+  <footer class="foot">
+    <details id="archBox" hidden><summary>Ediciones anteriores</summary><div class="row" id="archList"></div></details>
+    <details id="orgBox">
+      <summary>Soy el organizador</summary>
+      <div class="row"><input type="password" id="orgToken" autocomplete="off" placeholder="Clave del organizador"><button class="btn" id="orgGo" type="button">Entrar</button><button class="btn" id="orgAdmin" type="button" hidden>Abrir administración</button><button class="btn ghost" id="orgBackup" type="button" hidden>Descargar respaldo</button><button class="btn ghost" id="orgOut" type="button" hidden>Salir</button></div>
+      <p class="hint"><span id="orgState"></span> <span id="orgMsg" style="color:var(--red)"></span></p>
+    </details>
+  </footer>
+  </div>
+
+  <section id="personView" hidden>
+    <button class="back" id="back" type="button"><span aria-hidden="true">←</span> Volver a todos</button>
+    <div class="pcard">
+      <div class="phead">
+        <div class="av big" id="pAv"></div>
+        <div class="who"><p class="eyebrow" style="margin:0 0 4px">Lista de antojos</p><h2 id="pName"></h2><span class="st" id="pSt"></span></div>
+        <button class="btn" id="pEdit" type="button"></button>
+        <button class="btn ghost" id="pPass" type="button" hidden>Cambiar contraseña</button>
+      </div>
+      <div id="pWeeks"></div>
+      <div class="gate" id="gate" hidden>
+        <label class="f" for="gatePass" style="margin-top:0">Escribe tu contraseña para editar</label>
+        <div class="row"><input type="password" id="gatePass" autocomplete="off" inputmode="numeric" placeholder="Tu contraseña"><button class="btn" id="gateGo" type="button">Desbloquear</button></div>
+      </div>
+      <div class="msg" id="pMsg" role="status"></div>
+    </div>
+    <div class="slots" id="slots"></div>
+    <div class="editbar" id="editbar" hidden>
+      <button class="btn" id="pSave" type="button"><span>Guardar cambios</span></button>
+      <button class="btn ghost" id="pCancel" type="button">Cancelar</button>
+      <span class="hint" style="margin:0">Mínimo 5 dulces. La foto es opcional.</span>
+    </div>
+  </section>
+
+  <section id="adminView" hidden>
+    <button class="back" id="admBack" type="button"><span aria-hidden="true">←</span> Volver a todos</button>
+    <div class="pcard">
+      <h2>Administración</h2>
+      <p class="sub" style="margin-bottom:8px">Solo tú ves esta pantalla.</p>
+      <p class="small-eyebrow">Edición actual</p>
+      <div class="admgrid">
+        <label class="f" for="setYear">Año<input type="number" id="setYear" min="2000" max="2100"></label>
+        <label class="f" for="setDate">Primer viernes de regalo<input type="date" id="setDate"></label>
+        <label class="f" for="setWeeks">Número de viernes<input type="number" id="setWeeks" min="1" max="10"></label>
+      </div>
+      <button class="btn small" id="setSave" type="button">Guardar ajustes</button>
+      <div class="msg" id="setMsg" role="status"></div>
+    </div>
+    <div class="pcard">
+      <p class="small-eyebrow">Participantes y nombres</p>
+      <div id="admPeople"></div>
+      <div class="arow"><input type="text" id="newName" maxlength="40" placeholder="Nombre de la persona nueva" aria-label="Nombre de la persona nueva"><input type="text" id="newPw" maxlength="40" placeholder="Contraseña inicial" aria-label="Contraseña inicial"><button class="btn" id="newAdd" type="button">Agregar</button></div>
+      <p class="hint">Cambiar un nombre no afecta su contraseña ni sus dulces. Quitar a alguien borra su lista y sus fotos de la edición actual.</p>
+      <div class="msg" id="pplMsg" role="status"></div>
+    </div>
+    <div class="pcard">
+      <p class="small-eyebrow">Cambiar de año</p>
+      <p class="sub" style="margin-bottom:8px">Guarda una copia completa de la edición actual (nombres, dulces, marcas y fotos) y empieza una nueva con los mismos participantes y contraseñas.</p>
+      <div class="admgrid">
+        <label class="f" for="nyYear">Año nuevo<input type="number" id="nyYear" min="2000" max="2100"></label>
+        <label class="f" for="nyDate">Primer viernes<input type="date" id="nyDate"></label>
+        <label class="f" for="nyWeeks">Número de viernes<input type="number" id="nyWeeks" min="1" max="10"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="nyCopy"><span>Conservar los dulces de este año como punto de partida (las fotos y las marcas de semanas sí se limpian).</span></label>
+      <label class="f" for="nyConfirm">Para confirmar escribe: <b id="nyWord"></b></label>
+      <input type="text" id="nyConfirm" autocomplete="off" style="margin-bottom:10px">
+      <button class="btn" id="nyGo" type="button">Archivar y empezar el año nuevo</button>
+      <div class="msg" id="nyMsg" role="status"></div>
+    </div>
+    <div class="pcard">
+      <p class="small-eyebrow">Ediciones guardadas</p>
+      <div id="admArch"></div>
+    </div>
+  </section>
+</div>
+
+<div class="lightbox" id="lightbox" hidden><button id="lbClose" type="button" aria-label="Cerrar foto">×</button><img id="lbImg" alt="Foto del dulce"></div>
+
+<script>
+(function () {
+  var DATES = [], WEEK_DATES = [], NW = 6, SETTINGS = { year: 2026, firstFriday: "2026-10-30", weeks: 6 };
+  var WORDS = ["cero", "un", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve", "diez"];
+  var DOW = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"], MON = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+  function applySettings(s) {
+    SETTINGS = s; NW = Number(s.weeks) || 6; DATES = []; WEEK_DATES = [];
+    var p = String(s.firstFriday).split("-").map(Number);
+    for (var i = 0; i < NW; i++) { var d = new Date(p[0], p[1] - 1, p[2] + 7 * i); WEEK_DATES.push(d); DATES.push(DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]); }
+  }
+  applySettings(SETTINGS);
+  function fmtShort(d) { return d.getDate() + " " + MON[d.getMonth()]; }
+  var NEXT = { "": "ok", ok: "alt", alt: "no", no: "" };
+  var SLOTS = 10, MIN = 5;
+  var HOLD = ["Ej. Chocolates Kisses", "Ej. Panditas", "Ej. Pulparindo", "Ej. Mazapán", "Ej. Paleta de cereza"];
+  var $ = function (id) { return document.getElementById(id); };
+  var viewYear = null, readOnly = false, adminOpen = false;
+  var PEOPLE = [], lists = {}, auth = { nid: "", pw: "" }, ownerTok = "", tab = "all", query = "", armed = null, busy = false, loaded = false;
+  var view = { nid: null, edit: false, draft: null, gate: false, wantEdit: false };
+
+  try {
+    var s0 = JSON.parse(sessionStorage.getItem("ss-auth") || "null");
+    if (s0 && s0.nid && s0.pw) auth = s0;
+    ownerTok = sessionStorage.getItem("ss-owner") || "";
+  } catch (e) {}
+
+  var ICON = {
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
+    x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+    upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V5M7 9l5-5 5 5M5 19h14"/></svg>',
+    camera: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+  };
+  function icon(name) { var t = document.createElement("template"); t.innerHTML = ICON[name]; var s = document.createElement("span"); s.className = "ico"; s.appendChild(t.content.firstChild); return s; }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim(); }
+  function setMsg(t, cls) { var m = $("msg"); m.textContent = t || ""; m.className = "msg " + (cls || ""); }
+  function pMsg(t, cls) { var m = $("pMsg"); m.textContent = t || ""; m.className = "msg " + (cls || ""); }
+  function banner(t) { var b = $("banner"); b.textContent = t || ""; b.hidden = !t; }
+  function personOf(id) { return PEOPLE.filter(function (p) { return p.id === id; })[0]; }
+  function idxOf(id) { for (var i = 0; i < PEOPLE.length; i++) if (PEOPLE[i].id === id) return i; return 0; }
+  function slotsOf(l) { var a = (l && l.candies) || [], out = []; for (var i = 0; i < SLOTS; i++) out.push(String(a[i] || "")); return out; }
+  function isReg(l) { return !!(l && (l.candies || []).some(function (c) { return !!c; })); }
+  function canEdit(nid) { return !readOnly && (!!ownerTok || auth.nid === nid); }
+  function setAuth(nid, pw) { auth = { nid: nid, pw: pw }; try { sessionStorage.setItem("ss-auth", JSON.stringify(auth)); } catch (e) {} }
+  function fmtErr(e) { return (e && e.message) || "No pudimos conectar. Revisa tu internet."; }
+
+  /* red */
+  function api(path, opts) {
+    return fetch(path, opts || {}).then(function (r) {
+      return r.json().catch(function () { return null; }).then(function (j) {
+        if (!r.ok) { var e = new Error((j && j.error) || "No pudimos conectar. Revisa tu internet."); e.status = r.status; throw e; }
+        return j;
+      });
+    });
+  }
+  function hdr(nid) {
+    var h = { "content-type": "application/json" };
+    if (ownerTok) h["Authorization"] = "Bearer " + ownerTok;
+    if (auth.nid === nid && auth.pw) h["X-Password"] = auth.pw;
+    return h;
+  }
+  function loadState() {
+    return api(viewYear ? "/api/archive/" + viewYear : "/api/state").then(function (j) {
+      readOnly = !!viewYear;
+      if (j.settings && j.settings.weeks) applySettings(j.settings);
+      PEOPLE = j.people.slice().sort(function (a, b) { return a.name.localeCompare(b.name, "es"); }).map(function (p) { return { id: p.id, n: p.name }; });
+      lists = j.lists || {};
+      banner("");
+      if (!loaded) { loaded = true; fillSelect(); paintStatic(); route(); }
+      else { paintStatic(); if (view.nid) renderPerson(false); else render(); }
+    }).catch(function (e) { banner(fmtErr(e)); });
+  }
+  function paintMode() {
+    $("archBar").hidden = !readOnly;
+    if (readOnly) $("archTxt").textContent = "Estás viendo la edición " + viewYear + " (solo lectura).";
+    $("registro").hidden = readOnly;
+  }
+  function paintStatic() {
+    var n = PEOPLE.length, l = $("lead");
+    l.textContent = "";
+    l.appendChild(document.createTextNode(n + " amigos, hasta diez antojos cada uno y " + (NW === 1 ? "un viernes" : WORDS[NW] + " viernes") + " para sorprendernos. "));
+    l.appendChild(el("b", "", "Tú pones los dulces favoritos, tu Santa pone la magia."));
+    $("artCount").textContent = String(n); $("total").textContent = String(n);
+    paintDates(); paintMode();
+    $("orgAdmin").hidden = !ownerTok;
+    $("orgState").textContent = ownerTok ? "Modo organizador activo." : "";
+    $("orgOut").hidden = !ownerTok;
+    $("orgBackup").hidden = !ownerTok;
+    refreshMsg(false);
+  }
+  function fillSelect() {
+    var sel = $("who"), cur = sel.value;
+    sel.textContent = "";
+    var o0 = el("option", "", "Elige tu nombre"); o0.value = ""; sel.appendChild(o0);
+    PEOPLE.forEach(function (p) { var o = el("option", "", p.n); o.value = p.id; sel.appendChild(o); });
+    sel.value = cur || auth.nid || "";
+  }
+
+  /* tema */
+  function effTheme() { var t = document.documentElement.getAttribute("data-theme"); return t || (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }
+  function paintTheme() { $("theme").textContent = effTheme() === "dark" ? "☀" : "☾"; }
+  try { var saved = localStorage.getItem("npi-ss-theme"); if (saved) document.documentElement.setAttribute("data-theme", saved); } catch (e) {}
+  $("theme").addEventListener("click", function () {
+    var n = effTheme() === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", n);
+    try { localStorage.setItem("npi-ss-theme", n); } catch (e) {}
+    paintTheme();
+  });
+  paintTheme();
+  function paintDates() {
+    var box = $("dates"); box.textContent = ""; box.style.setProperty("--nw", String(NW));
+    DATES.forEach(function (t, i) { var b = el("div", "wkb"); b.appendChild(el("small", "", "Semana " + (i + 1))); b.appendChild(el("b", "", t)); box.appendChild(b); });
+    $("dateRange").textContent = fmtShort(WEEK_DATES[0]) + " — " + fmtShort(WEEK_DATES[NW - 1]) + " · " + SETTINGS.year;
+    $("edition").textContent = "Edición " + SETTINGS.year;
+    document.title = "NPI - Secret Santa " + SETTINGS.year;
+  }
+
+  /* semanas */
+  function weeks(nid, l, mine) {
+    var wk = (l && l.weeks) || {}, strip = el("div", "wk");
+    for (var i = 0; i < NW; i++) (function (i) {
+      var st = wk[String(i + 1)] || "", arrived = Date.now() >= WEEK_DATES[i].getTime(), cell = el("div", "wkc");
+      var can = mine && arrived && isReg(l) && !readOnly;
+      var dot = el(can ? "button" : "span", "dot" + (st ? " " + st : ""));
+      if (st === "ok") dot.appendChild(icon("check"));
+      else if (st === "alt") dot.textContent = "!";
+      else if (st === "no") dot.appendChild(icon("x"));
+      else if (!arrived) dot.appendChild(icon("lock"));
+      var label = "Semana " + (i + 1) + ": " + (st === "ok" ? "recibió el que pidió" : st === "alt" ? "recibió otro dulce" : st === "no" ? "no recibió" : arrived ? "sin marcar" : "aún no es viernes");
+      dot.setAttribute("aria-label", label); dot.title = label;
+      if (can) {
+        dot.type = "button";
+        dot.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          var next = NEXT[st] || "";
+          api("/api/weeks/" + nid, { method: "POST", headers: hdr(nid), body: JSON.stringify({ week: i + 1, state: next }) })
+            .then(loadState).catch(function (e) { banner(fmtErr(e)); });
+        });
+      }
+      cell.appendChild(dot); cell.appendChild(el("span", "wkl", "WK" + (i + 1)));
+      strip.appendChild(cell);
+    })(i);
+    return strip;
+  }
+
+  /* pantalla principal */
+  function card(p, idx) {
+    var l = lists[p.id], reg = isReg(l), mine = auth.nid === p.id, c = el("article", "p" + (mine ? " mine" : "")), head = el("div", "ph");
+    var open = el("button", "open"); open.type = "button"; open.setAttribute("aria-label", "Ver la lista de " + p.n);
+    open.appendChild(el("div", "av av" + (idx % 4), p.n.charAt(0).toUpperCase()));
+    var who = el("div", "who"); who.appendChild(el("strong", "", p.n));
+    who.appendChild(el("span", "st" + (reg ? " on" : ""), reg ? "✓ Lista lista para Santa" : "Esperando sus antojos"));
+    open.appendChild(who); head.appendChild(open);
+    c.appendChild(head);
+    c.appendChild(weeks(p.id, l, mine));
+    if (reg) {
+      var ol = el("ul", "chips"), fl = l.photos || {};
+      slotsOf(l).forEach(function (x, k) {
+        if (!x) return;
+        var li = el("li", "", x);
+        if (fl[String(k)]) { var cam = icon("camera"); cam.className += " cam"; cam.title = "Tiene foto"; cam.setAttribute("aria-label", "Tiene foto"); li.appendChild(cam); }
+        ol.appendChild(li);
+      });
+      c.appendChild(ol);
+      var vb = el("button", "viewbtn", "Ver lista y fotos →"); vb.type = "button"; c.appendChild(vb);
+      if (ownerTok && !readOnly) {
+        var rm = el("button", "ownerbtn", armed === p.id ? "¿Seguro? Toca otra vez" : "Quitar registro"); rm.type = "button";
+        rm.addEventListener("click", function (ev) {
+          ev.stopPropagation();
+          if (armed !== p.id) { armed = p.id; render(); setTimeout(function () { if (armed === p.id) { armed = null; render(); } }, 3500); return; }
+          armed = null;
+          api("/api/list/" + p.id, { method: "DELETE", headers: hdr(p.id) }).then(loadState).catch(function (e) { banner(fmtErr(e)); });
+        });
+        c.appendChild(rm);
+      }
+    } else {
+      var add = el("button", "pendbtn"); add.type = "button"; add.appendChild(icon("plus")); add.appendChild(document.createTextNode("Pendiente de registrar"));
+      c.appendChild(add);
+    }
+    c.addEventListener("click", function (ev) { if (ev.target.closest("button.dot, .ownerbtn")) return; openPerson(p.id, false); });
+    return c;
+  }
+  function render() {
+    var g = $("grid"), done = 0, shown = 0, q = norm(query);
+    g.textContent = "";
+    PEOPLE.forEach(function (p) { if (isReg(lists[p.id])) done++; });
+    PEOPLE.forEach(function (p, idx) {
+      var l = lists[p.id], reg = isReg(l);
+      if (tab === "done" && !reg) return;
+      if (tab === "pending" && reg) return;
+      if (q && norm(p.n + " " + (reg ? slotsOf(l).join(" ") : "")).indexOf(q) < 0) return;
+      shown++; g.appendChild(card(p, idx));
+    });
+    if (!shown) g.appendChild(el("div", "empty", loaded ? "No hay nadie que coincida con tu búsqueda." : "Cargando…"));
+    $("done").textContent = String(done);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (b) {
+    b.addEventListener("click", function () {
+      tab = b.getAttribute("data-tab");
+      Array.prototype.forEach.call(document.querySelectorAll(".tab"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      render();
+    });
+  });
+  $("q").addEventListener("input", function () { query = this.value; render(); });
+
+  /* entrar */
+  function unlock(nid, pw) {
+    if (ownerTok) return Promise.resolve("");
+    if (!pw) return Promise.resolve("Escribe tu contraseña.");
+    return api("/api/auth/" + nid, { method: "POST", headers: { "content-type": "application/json", "X-Password": pw } })
+      .then(function () { setAuth(nid, pw); return ""; }).catch(fmtErr);
+  }
+  $("enter").addEventListener("click", function () {
+    if (busy) return;
+    var nid = $("who").value;
+    if (!nid) { setMsg("Elige tu nombre.", "err"); return; }
+    busy = true; setMsg("");
+    unlock(nid, $("pass").value.trim()).then(function (err) {
+      busy = false;
+      if (err) { setMsg(err, "err"); return; }
+      $("pass").value = ""; openPerson(nid, true);
+    });
+  });
+
+  /* navegación entre pantallas con #p-nombre */
+  function openPerson(id, wantEdit) {
+    view.wantEdit = !!wantEdit;
+    if (location.hash === "#p-" + id) route(); else location.hash = "p-" + id;
+  }
+  $("back").addEventListener("click", function () { if (location.hash) location.hash = ""; else route(); });
+  function route() {
+    var m = /^#p-([a-z0-9]+)$/.exec(location.hash), id = m && m[1];
+    if (location.hash === "#organizador" && ownerTok && !viewYear) return showAdmin();
+    if (id && personOf(id)) showPerson(id); else showMain();
+  }
+  window.addEventListener("hashchange", route);
+  function showMain() {
+    view.nid = null; view.edit = false; view.draft = null; view.gate = false; adminOpen = false;
+    $("personView").hidden = true; $("adminView").hidden = true; $("mainView").hidden = false; $("top").hidden = false; render();
+  }
+  function showPerson(id) {
+    if (view.nid !== id) { view.nid = id; view.edit = false; view.draft = null; view.gate = false; pMsg(""); }
+    adminOpen = false; $("adminView").hidden = true;
+    $("mainView").hidden = true; $("personView").hidden = false; $("top").hidden = true;
+    renderPerson(true);
+    window.scrollTo(0, 0);
+    if (view.wantEdit) { view.wantEdit = false; tryEdit(); }
+  }
+
+  /* fotos */
+  function processImage(file) {
+    return new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onerror = function () { rej(fr.error); };
+      fr.onload = function () {
+        var img = new Image();
+        img.onerror = rej;
+        img.onload = function () {
+          var k = Math.min(1, 520 / Math.max(img.naturalWidth, img.naturalHeight));
+          var cv = document.createElement("canvas"); cv.width = Math.round(img.naturalWidth * k); cv.height = Math.round(img.naturalHeight * k);
+          cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+          var out = cv.toDataURL("image/jpeg", 0.62);
+          if (out.length > 150000) out = cv.toDataURL("image/jpeg", 0.45);
+          if (out.length > 150000) out = cv.toDataURL("image/jpeg", 0.32);
+          res(out);
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function showLightbox(src) { $("lbImg").src = src; $("lightbox").hidden = false; }
+  $("lbClose").addEventListener("click", function () { $("lightbox").hidden = true; });
+  $("lightbox").addEventListener("click", function (e) { if (e.target === this) this.hidden = true; });
+
+  /* pantalla de persona (compacta) */
+  function renderPerson(full) {
+    var nid = view.nid; if (!nid) return;
+    var p = personOf(nid), l = lists[nid], reg = isReg(l), mine = auth.nid === nid;
+    var av = $("pAv"); av.textContent = p.n.charAt(0).toUpperCase(); av.className = "av big av" + (idxOf(nid) % 4);
+    $("pName").textContent = p.n;
+    var st = $("pSt"); st.textContent = reg ? "✓ Lista lista para Santa" : "Esperando sus antojos"; st.className = "st" + (reg ? " on" : "");
+    var w = $("pWeeks"); w.textContent = ""; w.appendChild(weeks(nid, l, mine));
+    var eb = $("pEdit"); eb.hidden = view.edit || readOnly;
+    eb.textContent = canEdit(nid) ? (reg ? "Editar dulces y fotos" : "Registrar mis dulces") : "Editar con contraseña";
+    $("pPass").hidden = !ownerTok || view.edit || readOnly;
+    $("gate").hidden = !view.gate || view.edit;
+    $("editbar").hidden = !view.edit;
+    if (full || !view.edit) renderSlots();
+  }
+  function photoFor(nid, k, l) {
+    var d = view.edit && view.draft ? view.draft.photos[k] : undefined;
+    if (typeof d === "string") return d;
+    if (d === null) return null;
+    var ver = l && l.photos && l.photos[String(k)];
+    return ver ? (viewYear ? "/api/archive/" + viewYear + "/photo/" : "/api/photo/") + nid + "/" + k + "?v=" + ver : null;
+  }
+  function renderSlots() {
+    var nid = view.nid, g = $("slots"); if (!nid) return;
+    var l = lists[nid], texts = view.edit && view.draft ? view.draft.texts : slotsOf(l);
+    g.textContent = ""; g.className = "slots " + (view.edit ? "edit" : "view");
+    for (var k = 0; k < SLOTS; k++) (function (k) {
+      var txt = texts[k] || "", ph = photoFor(nid, k, l), c = el("article", "slot" + (!txt && !view.edit ? " empty" : ""));
+      var im = el(ph ? "button" : "div", "slotimg");
+      if (ph) {
+        im.type = "button"; im.title = "Ver la foto en grande"; im.setAttribute("aria-label", "Ver en grande la foto de " + (txt || "dulce " + (k + 1)));
+        var img = el("img"); img.src = ph; img.alt = ""; img.loading = "lazy"; im.appendChild(img);
+        im.addEventListener("click", function () { showLightbox(ph); });
+      } else { im.appendChild(icon("camera")); }
+      c.appendChild(im);
+      var body = el("div", "slotbody");
+      body.appendChild(el("span", "n", (k < 9 ? "0" : "") + (k + 1) + (k >= MIN ? " · opc." : "")));
+      if (view.edit) {
+        var inp = el("input"); inp.type = "text"; inp.maxLength = 90; inp.value = txt; inp.placeholder = k < 5 ? HOLD[k] : "Dulce " + (k + 1) + " (opcional)"; inp.setAttribute("aria-label", "Dulce " + (k + 1));
+        inp.addEventListener("input", function () { view.draft.texts[k] = inp.value; });
+        body.appendChild(inp);
+      } else {
+        body.appendChild(el("p", "txt" + (txt ? "" : " none"), txt || "Sin elegir"));
+      }
+      c.appendChild(body);
+      if (view.edit) {
+        var pb = el("div", "pbtns");
+        var picker = function (ic, label, capture) {
+          var lab = el("label", "ib"); lab.title = label; lab.setAttribute("aria-label", label + " del dulce " + (k + 1)); lab.appendChild(icon(ic));
+          var f = el("input"); f.type = "file"; f.accept = "image/*"; f.hidden = true; if (capture) f.setAttribute("capture", "environment");
+          f.addEventListener("change", function () {
+            var file = f.files && f.files[0]; if (!file) return;
+            pMsg("Preparando la foto…");
+            processImage(file).then(function (data) { view.draft.photos[k] = data; pMsg(""); renderSlots(); })
+              .catch(function () { pMsg("No pudimos leer esa foto. Intenta con otra.", "err"); });
+          });
+          lab.appendChild(f); return lab;
+        };
+        pb.appendChild(picker("camera", "Tomar foto", true)); pb.appendChild(picker("upload", "Subir foto", false));
+        if (ph) {
+          var rm = el("button", "ib danger"); rm.type = "button"; rm.title = "Quitar foto"; rm.setAttribute("aria-label", "Quitar la foto del dulce " + (k + 1)); rm.appendChild(icon("x"));
+          rm.addEventListener("click", function () { view.draft.photos[k] = null; renderSlots(); });
+          pb.appendChild(rm);
+        }
+        c.appendChild(pb);
+      }
+      g.appendChild(c);
+    })(k);
+  }
+  function startEdit() {
+    var nid = view.nid;
+    view.edit = true; view.gate = false; view.draft = { texts: slotsOf(lists[nid]), photos: {} };
+    pMsg(""); renderPerson(true);
+  }
+  function tryEdit() {
+    var nid = view.nid; if (!nid || readOnly) return;
+    if (canEdit(nid)) startEdit(); else { view.gate = true; renderPerson(false); $("gatePass").focus({ preventScroll: true }); }
+  }
+  $("pEdit").addEventListener("click", tryEdit);
+  $("gateGo").addEventListener("click", function () {
+    if (busy) return; busy = true; pMsg("");
+    unlock(view.nid, $("gatePass").value.trim()).then(function (err) {
+      busy = false;
+      if (err) { pMsg(err, "err"); return; }
+      $("gatePass").value = ""; startEdit();
+    });
+  });
+  $("pCancel").addEventListener("click", function () { view.edit = false; view.draft = null; pMsg(""); renderPerson(true); });
+  $("pSave").addEventListener("click", function () {
+    if (busy || !view.edit) return;
+    var nid = view.nid, d = view.draft, l = lists[nid], btn = $("pSave");
+    var texts = d.texts.map(function (t) { return String(t || "").trim(); });
+    if (texts.filter(Boolean).length < MIN) { pMsg("Registra al menos 5 dulces.", "err"); return; }
+    var low = texts.filter(Boolean).map(norm);
+    if (low.some(function (x, i) { return low.indexOf(x) !== i; })) { pMsg("Los dulces deben ser diferentes.", "err"); return; }
+    for (var k = 0; k < SLOTS; k++) {
+      var has = typeof d.photos[k] === "string" || (d.photos[k] === undefined && l && l.photos && l.photos[String(k)]);
+      if (!texts[k] && has) { pMsg("El dulce " + (k + 1) + " tiene foto pero no nombre: escríbele un nombre o quítale la foto.", "err"); return; }
+    }
+    busy = true; btn.disabled = true; pMsg("Guardando…");
+    api("/api/list/" + nid, { method: "PUT", headers: hdr(nid), body: JSON.stringify({ candies: texts, photos: d.photos }) })
+      .then(function () { view.edit = false; view.draft = null; return loadState().then(function () { pMsg("¡Guardado! Tus cambios ya se ven en la lista. 🎉", "ok"); renderPerson(true); }); })
+      .catch(function (e) { pMsg(fmtErr(e), "err"); })
+      .then(function () { busy = false; btn.disabled = false; });
+  });
+  $("pPass").addEventListener("click", function () {
+    var nid = view.nid, p = personOf(nid), pw = window.prompt("Nueva contraseña para " + p.n + " (3 a 40 caracteres):");
+    if (!pw) return;
+    api("/api/admin/password", { method: "POST", headers: hdr(nid), body: JSON.stringify({ id: nid, password: pw.trim() }) })
+      .then(function () { pMsg("Contraseña de " + p.n + " actualizada. Compártesela por un medio privado.", "ok"); })
+      .catch(function (e) { pMsg(fmtErr(e), "err"); });
+  });
+
+  /* organizador */
+  $("orgGo").addEventListener("click", function () {
+    var t = $("orgToken").value.trim(); if (!t) return;
+    api("/api/admin/ping", { headers: { Authorization: "Bearer " + t } }).then(function () {
+      ownerTok = t; try { sessionStorage.setItem("ss-owner", t); } catch (e) {}
+      $("orgToken").value = ""; $("orgMsg").textContent = ""; paintStatic(); if (view.nid) renderPerson(false); else render();
+    }).catch(function (e) { $("orgMsg").textContent = fmtErr(e); });
+  });
+  $("orgBackup").addEventListener("click", function () {
+    api("/api/admin/export", { headers: { Authorization: "Bearer " + ownerTok } }).then(function (j) {
+      var b = new Blob([JSON.stringify(j, null, 2)], { type: "application/json" }), u = URL.createObjectURL(b), a = document.createElement("a");
+      a.href = u; a.download = "secret-santa-respaldo.json"; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(u); }, 2000);
+    }).catch(function (e) { $("orgMsg").textContent = fmtErr(e); });
+  });
+  $("archExit").addEventListener("click", function () { viewYear = null; if (location.hash) location.hash = ""; loadState(); });
+  $("orgOut").addEventListener("click", function () {
+    ownerTok = ""; try { sessionStorage.removeItem("ss-owner"); } catch (e) {}
+    paintStatic(); if (view.nid) renderPerson(false); else render();
+  });
+
+
+  /* ---- mensajes para el grupo (solo organizador): tú los revisas y los envías ---- */
+  var APP_URL = location.origin + "/", msgKind = "status", msgDirty = false;
+  function listJoin(a) { return a.length < 2 ? a.join("") : a.slice(0, -1).join(", ") + " y " + a[a.length - 1]; }
+  function msgData() {
+    var regList = [], pend = [], marks = {};
+    PEOPLE.forEach(function (p) {
+      var l = lists[p.id];
+      if (isReg(l)) { regList.push({ id: p.id, n: p.n }); marks[p.id] = l.weeks || {}; } else pend.push(p.n);
+    });
+    return { people: PEOPLE, regList: regList, pend: pend, marks: marks };
+  }
+  function buildMsg(kind) {
+    var d = msgData(), n = d.people.length, now = new Date(), t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(), idx = -1, i;
+    for (i = 0; i < NW; i++) { if (WEEK_DATES[i].getTime() >= t0) { idx = i; break; } }
+    var isToday = idx >= 0 && WEEK_DATES[idx].getTime() === t0, link = APP_URL ? "\nEntra aquí: " + APP_URL : "", head = "🎁 NPI - Secret Santa 2026\n";
+    if (kind === "pending") {
+      if (!d.pend.length) return head + "🎉 ¡Ya estamos los " + n + " registrados! Gracias a todos." + link;
+      return head + "Faltan por registrar sus dulces: " + listJoin(d.pend) + ".\nEscoge de 5 a 10 dulces y, si quieres, súbeles una foto." + link;
+    }
+    if (kind === "friday") {
+      if (idx < 0) return head + "El intercambio ya terminó. ¡Gracias por participar! 🍬";
+      var wk = idx + 1;
+      if (!isToday) return head + "El próximo viernes de regalo es el " + DATES[idx] + " (semana " + wk + "). Ten listo tu dulce para quien te tocó 🍬" + link;
+      var missing = d.regList.filter(function (p) { return !(d.marks[p.id] || {})[String(wk)]; }).map(function (p) { return p.n; });
+      return head + "¡Hoy es viernes de regalo (semana " + wk + ")! 🍬\nEntrega tu dulce a quien te tocó. Cuando recibas el tuyo, marca tu círculo de la semana " + wk + ": ✓ el que pedí, ! otro dulce, ✕ no recibí."
+        + (missing.length ? "\nFaltan por marcar: " + listJoin(missing) + "." : "\n¡Todos marcaron esta semana! 🎉") + link;
+    }
+    var when = idx < 0 ? "El intercambio ya terminó." : (isToday ? "Hoy es viernes de regalo (semana " + (idx + 1) + ")." : "Próximo viernes de regalo: " + DATES[idx] + " (semana " + (idx + 1) + ").");
+    return head + "Registrados: " + d.regList.length + " de " + n + ".\n" + (d.pend.length ? "Faltan por registrar: " + listJoin(d.pend) + "." : "¡Todos registrados! 🎉") + "\n" + when + link;
+  }
+  function syncMsgLinks() {
+    var t = $("msgText").value;
+    $("msgWa").href = "https://wa.me/?text=" + encodeURIComponent(t);
+    $("msgMail").href = "mailto:?subject=" + encodeURIComponent("NPI - Secret Santa 2026") + "&body=" + encodeURIComponent(t);
+  }
+  function refreshMsg(force) {
+    var on = !!ownerTok && !readOnly, panel = $("msgPanel");
+    panel.hidden = !on; if (!on) return;
+    $("msgNote").textContent = "Revisa el texto antes de enviarlo: incluye el enlace de la app para que tus amigos entren.";
+    var ta = $("msgText");
+    if (force || !msgDirty) { ta.value = buildMsg(msgKind); msgDirty = false; }
+    syncMsgLinks();
+  }
+  Array.prototype.forEach.call(document.querySelectorAll(".mtab"), function (b) {
+    b.addEventListener("click", function () {
+      msgKind = b.getAttribute("data-kind");
+      Array.prototype.forEach.call(document.querySelectorAll(".mtab"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      $("msgHint").textContent = ""; refreshMsg(true);
+    });
+  });
+  $("msgText").addEventListener("input", function () { msgDirty = true; syncMsgLinks(); });
+  $("msgWa").addEventListener("click", function (e) {
+    if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent)) { e.preventDefault(); navigator.share({ text: $("msgText").value }).catch(function () {}); }
+  });
+  $("msgCopy").addEventListener("click", function () {
+    var ta = $("msgText"), ok = function () { $("msgHint").textContent = "Copiado ✓ Pégalo en WhatsApp o donde quieras."; };
+    var p = (navigator.clipboard && navigator.clipboard.writeText) ? navigator.clipboard.writeText(ta.value) : Promise.reject();
+    p.then(ok).catch(function () { ta.select(); try { document.execCommand("copy"); ok(); } catch (e) { $("msgHint").textContent = "Selecciona el texto y cópialo manualmente."; } });
+  });
+
+  /* ---- ediciones anteriores y administración (solo organizador) ---- */
+  function downloadJson(name, obj) {
+    var b = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" }), u = URL.createObjectURL(b), a = document.createElement("a");
+    a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 2000);
+  }
+  function openArchive(y) { viewYear = y; if (location.hash) location.hash = ""; loadState(); window.scrollTo(0, 0); }
+  function loadArchives() {
+    return api("/api/archives").then(function (j) {
+      var items = j.items || [], box = $("archList"), adm = $("admArch");
+      box.textContent = ""; adm.textContent = "";
+      $("archBox").hidden = !items.length;
+      if (!items.length) adm.appendChild(el("p", "hint", "Todavía no hay ediciones guardadas. Se crean al cambiar de año."));
+      items.forEach(function (it) {
+        var b = el("button", "btn ghost", "Edición " + it.year); b.type = "button"; b.addEventListener("click", function () { openArchive(it.year); }); box.appendChild(b);
+        var row = el("div", "arow"); row.appendChild(el("span", "", "Edición " + it.year + " · guardada el " + new Date(it.archived_at).toLocaleDateString("es-MX")));
+        var v = el("button", "btn", "Ver"); v.type = "button"; v.addEventListener("click", function () { openArchive(it.year); }); row.appendChild(v);
+        var d = el("button", "btn ghost", "Descargar copia"); d.type = "button";
+        d.addEventListener("click", function () { api("/api/archive/" + it.year).then(function (a) { downloadJson("secret-santa-" + it.year + ".json", a); }).catch(function (e) { $("setMsg").textContent = fmtErr(e); }); });
+        row.appendChild(d); adm.appendChild(row);
+      });
+    }).catch(function () {});
+  }
+  $("orgAdmin").addEventListener("click", function () { location.hash = "organizador"; });
+  $("admBack").addEventListener("click", function () { location.hash = ""; });
+  function showAdmin() {
+    adminOpen = true; view.nid = null;
+    $("mainView").hidden = true; $("personView").hidden = true; $("adminView").hidden = false; $("top").hidden = true;
+    renderAdmin(); loadArchives(); window.scrollTo(0, 0);
+  }
+  function admMsg(id, t, cls) { var m = $(id); m.textContent = t || ""; m.className = "msg " + (cls || ""); }
+  function plusDays(iso, n) { var p = iso.split("-").map(Number), d = new Date(p[0], p[1] - 1, p[2] + n); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+  function renderAdmin() {
+    $("setYear").value = SETTINGS.year; $("setDate").value = SETTINGS.firstFriday; $("setWeeks").value = SETTINGS.weeks;
+    $("nyYear").value = SETTINGS.year + 1; $("nyDate").value = plusDays(SETTINGS.firstFriday, 364); $("nyWeeks").value = SETTINGS.weeks;
+    $("nyWord").textContent = "ARCHIVAR " + SETTINGS.year; $("nyConfirm").value = "";
+    var box = $("admPeople"); box.textContent = "";
+    PEOPLE.forEach(function (p) {
+      var row = el("div", "arow"), inp = el("input"); inp.type = "text"; inp.value = p.n; inp.maxLength = 40; inp.setAttribute("aria-label", "Nombre de " + p.n);
+      var save = el("button", "btn", "Guardar nombre"); save.type = "button";
+      save.addEventListener("click", function () {
+        api("/api/admin/people/" + p.id, { method: "PUT", headers: hdr(p.id), body: JSON.stringify({ name: inp.value }) })
+          .then(function () { admMsg("pplMsg", "Nombre actualizado.", "ok"); return loadState(); }).then(renderAdmin).catch(function (e) { admMsg("pplMsg", fmtErr(e), "err"); });
+      });
+      var pw = el("button", "btn ghost", "Contraseña"); pw.type = "button";
+      pw.addEventListener("click", function () {
+        var v = window.prompt("Nueva contraseña para " + p.n + " (3 a 40 caracteres):"); if (!v) return;
+        api("/api/admin/password", { method: "POST", headers: hdr(p.id), body: JSON.stringify({ id: p.id, password: v.trim() }) })
+          .then(function () { admMsg("pplMsg", "Contraseña de " + p.n + " actualizada. Compártesela por un medio privado.", "ok"); }).catch(function (e) { admMsg("pplMsg", fmtErr(e), "err"); });
+      });
+      var rm = el("button", "btn ghost", "Quitar"); rm.type = "button"; rm.style.color = "var(--red)";
+      rm.addEventListener("click", function () {
+        if (rm.dataset.armed !== "1") { rm.dataset.armed = "1"; rm.textContent = "¿Seguro?"; setTimeout(function () { rm.dataset.armed = ""; rm.textContent = "Quitar"; }, 3500); return; }
+        api("/api/admin/people/" + p.id, { method: "DELETE", headers: hdr(p.id) })
+          .then(function () { admMsg("pplMsg", p.n + " ya no está en la edición actual.", "ok"); return loadState(); }).then(renderAdmin).catch(function (e) { admMsg("pplMsg", fmtErr(e), "err"); });
+      });
+      row.appendChild(inp); row.appendChild(save); row.appendChild(pw); row.appendChild(rm); box.appendChild(row);
+    });
+  }
+  $("setSave").addEventListener("click", function () {
+    var body = { year: Number($("setYear").value), firstFriday: $("setDate").value, weeks: Number($("setWeeks").value) };
+    api("/api/admin/settings", { method: "PUT", headers: hdr(""), body: JSON.stringify(body) })
+      .then(function () { admMsg("setMsg", "Ajustes guardados.", "ok"); return loadState(); }).then(renderAdmin).catch(function (e) { admMsg("setMsg", fmtErr(e), "err"); });
+  });
+  $("newAdd").addEventListener("click", function () {
+    api("/api/admin/people", { method: "POST", headers: hdr(""), body: JSON.stringify({ name: $("newName").value, password: $("newPw").value }) })
+      .then(function () { $("newName").value = ""; $("newPw").value = ""; admMsg("pplMsg", "Persona agregada. Dale su contraseña por privado.", "ok"); return loadState(); }).then(renderAdmin).catch(function (e) { admMsg("pplMsg", fmtErr(e), "err"); });
+  });
+  $("nyGo").addEventListener("click", function () {
+    var btn = $("nyGo"); btn.disabled = true; admMsg("nyMsg", "Guardando la copia y preparando el año nuevo…");
+    var old = SETTINGS.year;
+    api("/api/admin/new-year", { method: "POST", headers: hdr(""), body: JSON.stringify({ year: Number($("nyYear").value), firstFriday: $("nyDate").value, weeks: Number($("nyWeeks").value), copyCandies: $("nyCopy").checked, confirm: $("nyConfirm").value }) })
+      .then(function () { return loadState(); }).then(function () { renderAdmin(); return loadArchives(); })
+      .then(function () { admMsg("nyMsg", "Listo: la edición " + old + " quedó guardada y ya empezó la " + SETTINGS.year + ".", "ok"); })
+      .catch(function (e) { admMsg("nyMsg", fmtErr(e), "err"); }).then(function () { btn.disabled = false; });
+  });
+
+  render();
+  loadState();
+  loadArchives();
+  setInterval(function () { if (document.visibilityState === "visible" && !busy && !view.edit && !adminOpen) loadState(); }, 45000);
+})();
+</script>
+</body>
+</html>
