@@ -11,7 +11,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "secret-santa"
-database_id = "PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS"   # D1 > secret-santa > Database ID
+database_id = "9fa0eb02-4635-4d43-b0f1-edd697b4aefd"   # D1 > secret-santa > Database ID
 
 # Registros para encontrar errores desde el panel de Cloudflare.
 [observability]
