@@ -222,6 +222,9 @@
   .arow .btn { min-height: 38px; padding: 0 12px; font-size: .8rem; }
   .pcard + .pcard { margin-top: 14px; }
   .pcard h2 { font-size: 1.5rem; }
+  .msgopts { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin: 10px 0 0; }
+  .msgopts select { min-width: 220px; margin-top: 4px; }
+
   @media (max-width: 900px) {
     .hero { grid-template-columns: 1fr; padding-top: 28px; }
     .artwrap { order: -1; max-width: 320px; margin: 0 auto; }
@@ -360,6 +363,10 @@
       <button class="mtab" type="button" data-kind="status" aria-pressed="true">Estatus</button>
       <button class="mtab" type="button" data-kind="pending" aria-pressed="false">Recordar pendientes</button>
       <button class="mtab" type="button" data-kind="friday" aria-pressed="false">Viernes</button>
+    </div>
+    <div class="msgopts" id="msgOpts" hidden>
+      <label class="f" for="msgWeek" style="margin:0">Viernes del reporte<select id="msgWeek"></select></label>
+      <label class="chk" style="margin:0"><input type="checkbox" id="msgLines"><span>Un nombre por línea</span></label>
     </div>
     <label class="f" for="msgText">Mensaje (puedes editarlo)</label>
     <textarea id="msgText" rows="8"></textarea>
@@ -872,6 +879,17 @@
     });
     return { people: PEOPLE, regList: regList, pend: pend, marks: marks };
   }
+  function lastArrived() {
+    var n = new Date(), t0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime(), last = -1;
+    for (var i = 0; i < NW; i++) { if (WEEK_DATES[i].getTime() <= t0) last = i; }
+    return last;
+  }
+  function fillMsgWeeks() {
+    var sel = $("msgWeek"), last = lastArrived(), cur = sel.value;
+    sel.textContent = "";
+    for (var i = 0; i < NW; i++) { var o = el("option", "", "Semana " + (i + 1) + " · " + DATES[i]); o.value = String(i); if (i > last) o.disabled = true; sel.appendChild(o); }
+    sel.value = (cur !== "" && Number(cur) <= last) ? cur : String(Math.max(last, 0));
+  }
   function buildMsg(kind) {
     var d = msgData(), n = d.people.length, now = new Date(), t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime(), idx = -1, i;
     for (i = 0; i < NW; i++) { if (WEEK_DATES[i].getTime() >= t0) { idx = i; break; } }
@@ -881,12 +899,15 @@
       return head + "Faltan por registrar sus dulces: " + listJoin(d.pend) + ".\nEscoge de 5 a 10 dulces y, si quieres, súbeles una foto." + link;
     }
     if (kind === "friday") {
-      if (idx < 0) return head + "El intercambio ya terminó. ¡Gracias por participar! 🍬";
-      var wk = idx + 1;
-      if (!isToday) return head + "El próximo viernes de regalo es el " + DATES[idx] + " (semana " + wk + "). Ten listo tu dulce para quien te tocó 🍬" + link;
-      var missing = d.regList.filter(function (p) { return !(d.marks[p.id] || {})[String(wk)]; }).map(function (p) { return p.n; });
-      return head + "¡Hoy es viernes de regalo (semana " + wk + ")! 🍬\nEntrega tu dulce a quien te tocó. Cuando recibas el tuyo, marca tu círculo de la semana " + wk + ": ✓ el que pedí, ! otro dulce, ✕ no recibí."
-        + (missing.length ? "\nFaltan por marcar: " + listJoin(missing) + "." : "\n¡Todos marcaron esta semana! 🎉") + link;
+      var last = lastArrived(), sel = $("msgWeek"), pick = sel && sel.value !== "" ? Number(sel.value) : last;
+      if (pick < 0 || pick > last) pick = last;
+      if (pick < 0) return head + "El primer viernes de regalo es el " + DATES[0] + ". Ten listo tu dulce para quien te tocó 🍬" + link;
+      var wk = pick + 1, g = { ok: [], alt: [], no: [], none: [] }, lines = $("msgLines") && $("msgLines").checked;
+      d.regList.forEach(function (p) { var s = (d.marks[p.id] || {})[String(wk)] || ""; (g[s] || g.none).push(p.n); });
+      var block = function (t, a) { return t + " (" + a.length + ")\n" + (a.length ? (lines ? a.map(function (x) { return "• " + x; }).join("\n") : listJoin(a)) : "—"); };
+      var total = d.regList.length;
+      return head + "📋 Reporte del viernes " + DATES[pick] + " (semana " + wk + ")\n\n" + block("✓ El que pedí", g.ok) + "\n\n" + block("! Otro dulce", g.alt) + "\n\n" + block("✕ No recibí", g.no) + "\n\n" + block("⏳ Sin marcar", g.none)
+        + "\n\nHan marcado " + (total - g.none.length) + " de " + total + " registrados." + (g.none.length && APP_URL ? "\nMarca tu círculo aquí: " + APP_URL : "");
     }
     var when = idx < 0 ? "El intercambio ya terminó." : (isToday ? "Hoy es viernes de regalo (semana " + (idx + 1) + ")." : "Próximo viernes de regalo: " + DATES[idx] + " (semana " + (idx + 1) + ").");
     return head + "Registrados: " + d.regList.length + " de " + n + ".\n" + (d.pend.length ? "Faltan por registrar: " + listJoin(d.pend) + "." : "¡Todos registrados! 🎉") + "\n" + when + link;
@@ -900,6 +921,7 @@
     var on = !!ownerTok && !readOnly, panel = $("msgPanel");
     panel.hidden = !on; if (!on) return;
     $("msgNote").textContent = "Revisa el texto antes de enviarlo: incluye el enlace de la app para que tus amigos entren.";
+    fillMsgWeeks(); $("msgOpts").hidden = msgKind !== "friday";
     var ta = $("msgText");
     if (force || !msgDirty) { ta.value = buildMsg(msgKind); msgDirty = false; }
     syncMsgLinks();
@@ -912,6 +934,8 @@
     });
   });
   $("msgText").addEventListener("input", function () { msgDirty = true; syncMsgLinks(); });
+  $("msgWeek").addEventListener("change", function () { msgDirty = false; refreshMsg(true); });
+  $("msgLines").addEventListener("change", function () { msgDirty = false; refreshMsg(true); });
   $("msgWa").addEventListener("click", function (e) {
     if (navigator.share && /Android|iPhone|iPad/i.test(navigator.userAgent)) { e.preventDefault(); navigator.share({ text: $("msgText").value }).catch(function () {}); }
   });
